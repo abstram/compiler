@@ -8,8 +8,10 @@ module;
 export module compiler.lex;
 
 export namespace lex {
-// TODO: expand this to include all two char symbols
-std::unordered_set<std::string> two_char_symbols = {"==", "!=", "+="};
+std::unordered_set<std::string> two_char_symbols = {
+    "==", "!=", "+=", "-=", "*=", "/=", "%=",
+    "::", "->", "--", "&&", "||", ">=", "<="};
+// our parsing system won't allow for <- symbol but -> is fine
 
 enum class type { TEXT, INT, FLOAT, SYMBOL, NEWLINE };
 enum class error { NUMBER_BEFORE_TEXT };
@@ -17,6 +19,7 @@ enum class error { NUMBER_BEFORE_TEXT };
 struct token {
   type type;
   std::string value;
+  int line;
 };
 
 std::string token_to_string(token &t) {
@@ -47,30 +50,30 @@ std::string token_to_string(token &t) {
   return result;
 }
 
-token init_token(const char c) {
+token init_token(const char c, int line_number) {
   token result;
   if (std::isalpha(c)) {
     std::string result_value = "";
     result_value += c;
 
-    result = token{type::TEXT, result_value};
+    result = token{type::TEXT, result_value, line_number};
   } else if (std::isdigit(c)) {
     std::string result_value = "";
     result_value += c;
 
-    result = token{type::INT, result_value};
+    result = token{type::INT, result_value, line_number};
   } else if (std::ispunct(c)) {
     std::string result_value = "";
     result_value += c;
 
-    result = token{type::SYMBOL, result_value};
+    result = token{type::SYMBOL, result_value, line_number};
   }
 
   return result;
 }
 
 std::expected<void, error> lex(std::vector<token> &source_tokens,
-                               const std::string &line) {
+                               const std::string &line, int line_number) {
   token current;
   bool current_init = false;
 
@@ -79,7 +82,7 @@ std::expected<void, error> lex(std::vector<token> &source_tokens,
       if (i == 0)
         return {};
 
-      source_tokens.emplace_back(type::NEWLINE, "");
+      source_tokens.emplace_back(type::NEWLINE, "", line_number);
       return {};
     }
 
@@ -88,7 +91,7 @@ std::expected<void, error> lex(std::vector<token> &source_tokens,
         continue;
       }
 
-      current = init_token(line[i]);
+      current = init_token(line[i], line_number);
       current_init = true;
       continue;
     }
@@ -160,7 +163,7 @@ std::expected<void, error> lex(std::vector<token> &source_tokens,
 
   if (current_init)
     source_tokens.emplace_back(current);
-  source_tokens.emplace_back(type::NEWLINE, "");
+  source_tokens.emplace_back(type::NEWLINE, "", line_number);
   return {};
 }
 

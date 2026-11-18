@@ -69,7 +69,7 @@ struct result {
 
 # all parameters are constant, bracket params are not, return reg also isn't
 # if there's overlap in params and bracket params / ret reg, the original param is copied to memory
-pow! (x: f/i, y: i) [i: gi/xi] -> result: ? {
+fn pow! (x: f/i, y: i) [i: gi/xi] -> result: ? {
   # ? means type unknown for now, must be resolved with type analysis like so
 
   # if you want more than LLVM O3 optimization, the ! after the name means it'll do windowed STOKE optimization
@@ -78,9 +78,9 @@ pow! (x: f/i, y: i) [i: gi/xi] -> result: ? {
   # the compiler will tell you if its having trouble optimizing a stoke function so if its super long you might have to
   # switch it to windowed anyways, or just use llvm o3 which is still really good
   
-  ^if (f typeof x) {
+  ^if f typeof x {
     result: xf
-  } else {
+  } else if i typeof x {
     result: xi
   }
 
@@ -90,10 +90,11 @@ pow! (x: f/i, y: i) [i: gi/xi] -> result: ? {
   while i > 1 {
     result *= x
     i -= 1
+    i -= 1
   }
 }
 
-calculate_circle_area (radius: f) [i: gi/xi] -> result: xf {
+fn calculate_circle_area (radius: f) [i: gi/xi] -> result: xf {
   const PI = 3.1415 # compile time constant
   # if you use operations in compile-time constants, you need to use ^
   result = PI * pow (radius, 2) [i]
@@ -101,17 +102,20 @@ calculate_circle_area (radius: f) [i: gi/xi] -> result: xf {
   # math parser will handle temporary regsiter allocation throughout expressions
 }
 
-entry {
-  width :: eax = 300
-  height :: ebx = 400
+fn main {
+  width :: eax = 300 # this is allowed
+  height :: ebx
+  height = 400
 
   graphics.rect (width, height)
   # alternatively, graphics.rect (300, 400) would work
   -- width, height # unbinds them from registers
 
-  radius :: xmm0 = 5.
+  radius :: xmm0
+  radius = 5.
   area :: xmm1 # currently has no type
-  i :: eax = 5
+  i :: eax
+  i = 5
 
   area = calculate_circle_area (radius) [i] # inherits float type
 
@@ -133,7 +137,8 @@ entry {
   -- * # clears everything (not memory obvi, but does clear memory bindings)
 
   area :: xmm0
-  radius :: xmm1 = 5.
+  radius :: xmm1
+  radius = 5.
 
   w :: virtual<gi>
   area = calculate_circle_area (radius) [w]
@@ -146,12 +151,16 @@ entry {
   # automatically register managed one
   # e.g.
   -- *
-  a :: virtual<gi> = 7
-  b :: virtual<gi> = 9
-  c :: virtual<xi> = 15 + a + b
+  a :: virtual<gi>
+  a = 7
+  b :: virtual<gi>
+  b = 9
+  c :: virtual<xi>
+  c = 15 + a + b
   # and so on and so forth without managing anything
 
-  i :: esi = 0
+  i :: esi
+  i = 0
 
   # struct and enum usage
   engine of memory[i] = (
@@ -159,7 +168,8 @@ entry {
     .hp = 100
   )
 
-  e :: edi = i
+  e :: edi
+  e = i
   i += sizeof engine
 
   car of memory[i] = (
@@ -169,22 +179,26 @@ entry {
     .engine :: engine memory[e]
   )
   
-  c :: eax = i
+  c :: eax
+  c = i
   i += sizeof car
 
   result of memory[i] = (error.NONE, 5) # simpler way to init structs
 
-  r1 :: ebx = i
+  r1 :: ebx
+  r1 = i
   i += sizeof result
 
   result of memory[i] = (.error = error.EXAMPLE_ERROR, .result = 0)
   
-  r2 :: ecx = i
+  r2 :: ecx
+  r2 = i
   i += sizeof result
   
   car_c :: car memory[c] # if c changes car_c shifts
   # despite being on memory, by defining car you're assigning the memory values types
-  w :: edx = 5
+  w :: edx
+  w = 5
   w += car_c.wheels
   w += car_c.engine.mph
 
@@ -199,13 +213,16 @@ entry {
   }
 
   -- *
-  x :: eax = memory[50] # copies
-  y :: ebx = 5
+  x :: eax
+  x = memory[50] # copies
+  y :: ebx
+  y = 5
   if x == 5 {
     y to f
   }
   
-  z :: memory[50] = 5
+  z :: memory[50]
+  z = 5
   # now x can be used like a variable
   # buuut you can't cast it into itself
   # like you can with registers

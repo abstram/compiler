@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 import compiler.lex;
+import compiler.ast;
 
 int main(int argc, char **argv) {
   if (argc < 1) {
@@ -17,7 +18,7 @@ int main(int argc, char **argv) {
 
   while (std::getline(source, line)) {
     line_number++;
-    auto lex_result = lex::lex(source_tokens, line);
+    auto lex_result = lex::lex(source_tokens, line, line_number);
     if (!lex_result) {
       switch (lex_result.error()) {
       case lex::error::NUMBER_BEFORE_TEXT:
@@ -33,10 +34,22 @@ int main(int argc, char **argv) {
   }
 
   // test lex
-  for (int i = 0; i < source_tokens.size(); i++) {
-    std::cout << lex::token_to_string(source_tokens[i]) << '\n';
-    if (i < (source_tokens.size() - 1)) {
-      std::cout << '\n';
+  // for (int i = 0; i < source_tokens.size(); i++) {
+  //   std::cout << lex::token_to_string(source_tokens[i]) << '\n';
+  //   if (i < (source_tokens.size() - 1)) {
+  //     std::cout << '\n';
+  //   }
+  // }
+
+  ast::ast_node *root = new ast::ast_node{};
+  int index = 0;
+  auto ast_result = ast::generate_ast(root, source_tokens, index);
+
+  if (!ast_result) {
+    switch (ast_result.error()) {
+    default:
+      std::cerr << "Unknown error\n";
+      return EXIT_FAILURE;
     }
   }
 
