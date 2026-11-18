@@ -53,7 +53,7 @@ struct car {
   wheels: i
   seats: i
   color: i
-  engine ~ engine memory[i]
+  engine :: engine memory[i]
 }
 
 union error {
@@ -166,7 +166,7 @@ entry {
     .wheels = 4
     .seats = 2
     .color = color.RED
-    .engine ~ engine memory[e]
+    .engine :: engine memory[e]
   )
   
   c :: eax = i
