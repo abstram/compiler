@@ -36,6 +36,8 @@ int main(int argc, char **argv) {
   source_tokens.pop_back(); // getting rid of last newline
 
   // to test lex: lex::print_tokens(source_tokens);
+  lex::print_tokens(source_tokens);
+  return 0;
 
   ast::ast_node *root = new ast::ast_node{};
   int start = 0;

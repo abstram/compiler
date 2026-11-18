@@ -11,7 +11,7 @@ export module compiler.lex;
 export namespace lex {
 std::unordered_set<std::string> two_char_symbols = {
     "==", "!=", "+=", "-=", "*=", "/=", "%=",
-    "::", "->", "--", "&&", "||", ">=", "<="};
+    "::", "->", "--", "&&", "||", ">=", "<=", "!!"};
 // our parsing system won't allow for <- symbol but -> is fine
 
 enum class type { TEXT, INT, FLOAT, SYMBOL, NEWLINE };
@@ -76,7 +76,7 @@ token init_token(const char c, int line_number) {
     result_value += c;
 
     result = token{type::INT, result_value, line_number};
-  } else if (std::ispunct(c)) {
+  } else if (std::ispunct(c) && c != '_') {
     std::string result_value = "";
     result_value += c;
 
@@ -132,7 +132,7 @@ std::expected<void, error> lex(std::vector<token> &source_tokens,
       if (line[i] == '.') {
         current.type = type::FLOAT;
 
-      } else if (std::isalpha(line[i]) || line[i] == '_') {
+      } else if (std::isalpha(line[i])) {
         return std::unexpected(error::NUMBER_BEFORE_TEXT);
 
       } else if (!isdigit(line[i])) {
@@ -146,7 +146,7 @@ std::expected<void, error> lex(std::vector<token> &source_tokens,
       break;
 
     case type::FLOAT:
-      if (std::isalpha(line[i]) || line[i] == '_') {
+      if (std::isalpha(line[i])) {
         return std::unexpected(error::NUMBER_BEFORE_TEXT);
       } else if (!std::isdigit(line[i])) {
         source_tokens.push_back(current);
@@ -159,7 +159,7 @@ std::expected<void, error> lex(std::vector<token> &source_tokens,
       break;
 
     case type::TEXT:
-      if (!std::isalnum(line[i])) {
+      if (!std::isalnum(line[i]) && line[i] != '_') {
         source_tokens.push_back(current);
         current_init = false;
         i--;

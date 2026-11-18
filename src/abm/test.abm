@@ -32,6 +32,8 @@ requires {
   # the import keyword grabs the package from the online official language registry,
   # if its a local file you use import with quotes and the path
   link smgk # links this code agains the smgk core: the simple multi-threaded graphical kernel made by me too
+  enable virtual # enable virtual types, remember virtual is discouraged
+  # maybe ill remove virtual types entirely
 }
 
 # the memory[] array accesses all of the system's availiable ram so don't be afraid to use it
@@ -53,7 +55,7 @@ struct car {
   wheels: i
   seats: i
   color: i
-  engine :: engine memory[i]
+  engine: i
 }
 
 union error {
@@ -75,7 +77,7 @@ struct result {
 # fn pow -> result: xi/xf
 # fn pow -> result: xi
 # fn pow {
-fn pow! (x: f/i, y: i) [i: gi/xi] -> result: ? {
+fn pow! (x: f/i, y: i) [i: gi/xi] -> result: f/i {
   # ? means type unknown for now, must be resolved with type analysis like so
 
   # if you want more than LLVM O3 optimization, the ! after the name means it'll do windowed STOKE optimization
@@ -83,12 +85,6 @@ fn pow! (x: f/i, y: i) [i: gi/xi] -> result: ? {
   # if you want full perfect stoke optimization no matter what, not even windowed, you can do !! after the function name
   # the compiler will tell you if its having trouble optimizing a stoke function so if its super long you might have to
   # switch it to windowed anyways, or just use llvm o3 which is still really good
-  
-  ^if f typeof x {
-    result: xf
-  } else if i typeof x {
-    result: xi
-  }
 
   result = x
   i = y
