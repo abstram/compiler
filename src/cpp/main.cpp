@@ -35,13 +35,7 @@ int main(int argc, char **argv) {
 
   source_tokens.pop_back(); // getting rid of last newline
 
-  // test lex
-  // for (int i = 0; i < source_tokens.size(); i++) {
-  //   std::cout << lex::token_to_string(source_tokens[i]) << '\n';
-  //   if (i < (source_tokens.size() - 1)) {
-  //     std::cout << '\n';
-  //   }
-  // }
+  // to test lex: lex::print_tokens(source_tokens);
 
   ast::ast_node *root = new ast::ast_node{};
   int start = 0;
@@ -52,7 +46,8 @@ int main(int argc, char **argv) {
   auto ast_result = ast::generate_ast(root, source_tokens, start, end);
 
   if (!ast_result) {
-    switch (ast_result.error()) {
+    switch (ast_result.error().code) {
+      // TODO: handle AST errors
     default:
       std::cerr << "Unknown error\n";
       return EXIT_FAILURE;

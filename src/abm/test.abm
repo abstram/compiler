@@ -69,6 +69,12 @@ struct result {
 
 # all parameters are constant, bracket params are not, return reg also isn't
 # if there's overlap in params and bracket params / ret reg, the original param is copied to memory
+# fn pow (x: f/i, y:i) [i: gi/xi] -> result: ?
+# fn pow [i: gi/xi] -> result: ?
+# fn pow -> result: ?
+# fn pow -> result: xi/xf
+# fn pow -> result: xi
+# fn pow {
 fn pow! (x: f/i, y: i) [i: gi/xi] -> result: ? {
   # ? means type unknown for now, must be resolved with type analysis like so
 

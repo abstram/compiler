@@ -1,6 +1,7 @@
 module;
 #include <cctype>
 #include <expected>
+#include <iostream>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -20,9 +21,13 @@ struct token {
   type type;
   std::string value;
   int line;
+
+  bool operator==(const token &o) const {
+    return (type == o.type && value == o.value);
+  }
 };
 
-std::string token_to_string(token &t) {
+std::string token_to_string(const token &t) {
   std::string result = "VALUE: " + t.value + "\nTYPE: ";
 
   switch (t.type) {
@@ -50,9 +55,18 @@ std::string token_to_string(token &t) {
   return result;
 }
 
+void print_tokens(const std::vector<token> &vt) {
+  for (int i = 0; i < vt.size(); i++) {
+    std::cout << token_to_string(vt[i]) << '\n';
+    if (i < (vt.size() - 1)) {
+      std::cout << '\n';
+    }
+  }
+}
+
 token init_token(const char c, int line_number) {
   token result;
-  if (std::isalpha(c)) {
+  if (std::isalpha(c) || c == '_') {
     std::string result_value = "";
     result_value += c;
 
@@ -118,7 +132,7 @@ std::expected<void, error> lex(std::vector<token> &source_tokens,
       if (line[i] == '.') {
         current.type = type::FLOAT;
 
-      } else if (std::isalpha(line[i])) {
+      } else if (std::isalpha(line[i]) || line[i] == '_') {
         return std::unexpected(error::NUMBER_BEFORE_TEXT);
 
       } else if (!isdigit(line[i])) {
@@ -132,7 +146,7 @@ std::expected<void, error> lex(std::vector<token> &source_tokens,
       break;
 
     case type::FLOAT:
-      if (std::isalpha(line[i])) {
+      if (std::isalpha(line[i]) || line[i] == '_') {
         return std::unexpected(error::NUMBER_BEFORE_TEXT);
       } else if (!std::isdigit(line[i])) {
         source_tokens.push_back(current);
