@@ -1,4 +1,4 @@
-# Abstram language - compiles to 32 bit bare metal
+# Abstram language - compiles to 32 bit bare metal assembly / C
 # type system:
 # every variable starts as starically typed
 # if you cast a variable in a conditional branch and it's not reversed,

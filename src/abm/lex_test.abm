@@ -1,0 +1,9 @@
+# what do you think?
+
+entry {
+  i: eax = 5 # :: isn't in the two-char-list yet
+  if (y += 7) {
+    19 = 8
+  }
+  hello bye
+}
