@@ -33,6 +33,8 @@ int main(int argc, char **argv) {
     }
   }
 
+  source_tokens.pop_back(); // getting rid of last newline
+
   // test lex
   // for (int i = 0; i < source_tokens.size(); i++) {
   //   std::cout << lex::token_to_string(source_tokens[i]) << '\n';
@@ -42,8 +44,12 @@ int main(int argc, char **argv) {
   // }
 
   ast::ast_node *root = new ast::ast_node{};
-  int index = 0;
-  auto ast_result = ast::generate_ast(root, source_tokens, index);
+  int start = 0;
+  while (source_tokens[start].type == lex::type::NEWLINE)
+    start++;
+
+  int end = source_tokens.size();
+  auto ast_result = ast::generate_ast(root, source_tokens, start, end);
 
   if (!ast_result) {
     switch (ast_result.error()) {

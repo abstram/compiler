@@ -163,7 +163,8 @@ std::expected<void, error> lex(std::vector<token> &source_tokens,
 
   if (current_init)
     source_tokens.emplace_back(current);
-  source_tokens.emplace_back(type::NEWLINE, "", line_number);
+  if (line.length() != 0)
+    source_tokens.emplace_back(type::NEWLINE, "", line_number);
   return {};
 }
 
