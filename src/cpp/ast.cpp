@@ -56,6 +56,8 @@ struct mod_assign {
   std::string name;
 };
 
+struct memory_access {}; // memory[inside], outside is none
+
 struct memory_assign {};
 struct if_definition {};
 struct while_definition {};
@@ -169,8 +171,15 @@ struct enum_definition {
 
 struct none {};
 
-using info = std::variant<function_definition, struct_definition,
-                          union_definition, none>;
+using info =
+    std::variant<function_definition, struct_definition, union_definition, none,
+                 requires_definition, variable_definition, assign, add_assign,
+                 sub_assign, mul_assign, div_assign, mod_assign, memory_assign,
+                 memory_access, if_definition, while_definition, handler,
+                 const_definition, add, sub, mul, div, mod, and_op, or_op,
+                 interpret, negative, positive, not_op, value, variable,
+                 function_call, inline_assembly, struct_init, access, drop,
+                 drop_all, to_cast, as_cast, enum_definition>;
 
 struct ast_node {
   info info;
