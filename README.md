@@ -1,2 +1,2 @@
 # compiler
-Abstram language compiler
+Alakazam language compiler
