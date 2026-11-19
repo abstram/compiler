@@ -56,12 +56,31 @@ struct mod_assign {
   std::string name;
 };
 
-struct memory_access {}; // memory[inside], outside is none
+struct memory_access {
+  std::string type;
+}; // memory[inside], outside is none
 
-struct memory_assign {};
+struct memory_assign {
+  std::string type;
+};
+struct memory_add_assign {
+  std::string type;
+};
+struct memory_sub_assign {
+  std::string type;
+};
+struct memory_mul_assign {
+  std::string type;
+};
+struct memory_div_assign {
+  std::string type;
+};
+struct memory_mod_assign {
+  std::string type;
+};
 struct if_definition {};
 struct while_definition {};
-// those 3 ^ point to this handler on inside:
+// those ^ point to this handler on inside:
 struct handler {};
 
 struct const_definition {
@@ -154,14 +173,14 @@ struct struct_member {
   std::string type;
 };
 
-struct struct_definition { // not finished
+struct struct_definition {
   std::string name;
   std::vector<struct_member> members;
 };
 
-struct union_definition { // not finished
+struct union_definition {
   std::string name;
-  std::vector<std::string> members;
+  std::vector<struct_member> members;
 };
 
 struct enum_definition {
@@ -171,15 +190,15 @@ struct enum_definition {
 
 struct none {};
 
-using info =
-    std::variant<function_definition, struct_definition, union_definition, none,
-                 requires_definition, variable_definition, assign, add_assign,
-                 sub_assign, mul_assign, div_assign, mod_assign, memory_assign,
-                 memory_access, if_definition, while_definition, handler,
-                 const_definition, add, sub, mul, div, mod, and_op, or_op,
-                 interpret, negative, positive, not_op, value, variable,
-                 function_call, inline_assembly, struct_init, access, drop,
-                 drop_all, to_cast, as_cast, enum_definition>;
+using info = std::variant<
+    function_definition, struct_definition, union_definition, none,
+    requires_definition, variable_definition, assign, add_assign, sub_assign,
+    mul_assign, div_assign, mod_assign, memory_assign, memory_access,
+    memory_add_assign, memory_sub_assign, memory_mul_assign, memory_div_assign,
+    memory_mod_assign, if_definition, while_definition, handler,
+    const_definition, add, sub, mul, div, mod, and_op, or_op, interpret,
+    negative, positive, not_op, value, variable, function_call, inline_assembly,
+    struct_init, access, drop, drop_all, to_cast, as_cast, enum_definition>;
 
 struct ast_node {
   info info;
@@ -438,6 +457,76 @@ analyze_fn(std::vector<lex::token> &source_tokens, int &start, int end,
   return temp;
 }
 
+std::expected<struct_definition, error>
+analyze_struct(std::vector<lex::token> &source_tokens, int &start, int end,
+               int &new_end) {
+  struct_definition temp;
+
+  start++;
+  auto token_is_valid = validate_token(
+      source_tokens, start, end, std::array<lex::type, 1>{lex::type::TEXT},
+      std::array<std::string, 0>{});
+  if (!token_is_valid)
+    return std::unexpected(token_is_valid.error());
+
+  temp.name = source_tokens[start].value;
+
+  start++;
+  token_is_valid = validate_token(source_tokens, start, end,
+                                  std::array<lex::type, 1>{lex::type::SYMBOL},
+                                  std::array<std::string, 1>{"{"});
+  if (!token_is_valid)
+    return std::unexpected(token_is_valid.error());
+
+  while (true) {
+    start++;
+    token_is_valid = validate_token(
+        source_tokens, start, end, std::array<lex::type, 1>{lex::type::NEWLINE},
+        std::array<std::string, 0>{});
+    if (!token_is_valid)
+      return std::unexpected(token_is_valid.error());
+
+    start++;
+    token_is_valid = validate_token(
+        source_tokens, start, end,
+        std::array<lex::type, 2>{lex::type::TEXT, lex::type::SYMBOL},
+        std::array<std::string, 0>{});
+    if (!token_is_valid)
+      return std::unexpected(token_is_valid.error());
+
+    if (source_tokens[start] == lex::token{lex::type::SYMBOL, "}"}) {
+      break;
+    }
+
+    std::string name;
+    std::string type;
+
+    name = source_tokens[start].value;
+
+    start++;
+    token_is_valid = validate_token(source_tokens, start, end,
+                                    std::array<lex::type, 1>{lex::type::SYMBOL},
+                                    std::array<std::string, 1>{":"});
+    if (!token_is_valid)
+      return std::unexpected(token_is_valid.error());
+
+    start++;
+    token_is_valid = validate_token(source_tokens, start, end,
+                                    std::array<lex::type, 1>{lex::type::TEXT},
+                                    std::array<std::string, 2>{"i", "f"});
+    if (!token_is_valid)
+      return std::unexpected(token_is_valid.error());
+
+    type = source_tokens[start].value;
+
+    temp.members.emplace_back(name, type);
+  }
+
+  new_end =
+      start; // because we want the outside to point to outside the definition
+  return temp;
+}
+
 std::expected<info, error> analyze(std::vector<lex::token> &source_tokens,
                                    int &start, int end, int &new_end) {
   info result;
@@ -461,7 +550,13 @@ std::expected<info, error> analyze(std::vector<lex::token> &source_tokens,
     }
 
     result = *analysis_result;
-  } else if () {
+  } else if (source_tokens[start] == lex::token{lex::type::TEXT, "struct"}) {
+    auto analysis_result = analyze_struct(source_tokens, start, end, new_end);
+    if (!analysis_result) {
+      return std::unexpected(analysis_result.error());
+    }
+
+    result = *analysis_result;
   }
 
   return result;
