@@ -10,8 +10,8 @@ export module compiler.lex;
 
 export namespace lex {
 std::unordered_set<std::string> two_char_symbols = {
-    "==", "!=", "+=", "-=", "*=", "/=", "%=",
-    "::", "->", "--", "&&", "||", ">=", "<=", "!!"};
+    "==", "!=", "+=", "-=", "*=", "/=", "%=", "::",
+    "->", "--", "&&", "||", ">=", "<=", "!!"};
 // our parsing system won't allow for <- symbol but -> is fine
 
 enum class type { TEXT, INT, FLOAT, SYMBOL, NEWLINE };
@@ -20,6 +20,8 @@ enum class error { NUMBER_BEFORE_TEXT };
 struct token {
   type type;
   std::string value;
+  // TODO: probably make a better version of this where value can be int and
+  // float so we can store ints and floats without using as much data
   int line;
 
   bool operator==(const token &o) const {
