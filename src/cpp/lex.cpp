@@ -11,7 +11,7 @@ export module compiler.lex;
 export namespace lex {
 std::unordered_set<std::string> two_char_symbols = {
     "==", "!=", "+=", "-=", "*=", "/=", "%=", "::",
-    "->", "--", "&&", "||", ">=", "<=", "!!"};
+    "->", "--", "&&", "||", ">=", "<=", "!!", "-*"};
 // our parsing system won't allow for <- symbol but -> is fine
 
 enum class type { TEXT, INT, FLOAT, SYMBOL, NEWLINE };

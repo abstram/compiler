@@ -169,10 +169,7 @@ fn main {
   i = 0
 
   # struct and enum usage
-  engine of memory[i] = (
-    .mph = 300
-    .hp = 100
-  )
+  e :: engine at memory[i]
 
   e :: edi
   e = i
@@ -218,7 +215,7 @@ fn main {
     w += r2_o.result
   }
 
-  -- *
+  -*
   x :: eax
   x = memory[50] # copies
   y :: ebx
