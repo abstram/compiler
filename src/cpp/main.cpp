@@ -33,7 +33,8 @@ int main(int argc, char **argv) {
     }
   }
 
-  source_tokens.pop_back(); // getting rid of last newline
+  while (source_tokens[source_tokens.size() - 1].type == lex::type::NEWLINE)
+    source_tokens.pop_back(); // getting rid of last newlines
 
   // to test lex: lex::print_tokens(source_tokens);
   lex::print_tokens(source_tokens);

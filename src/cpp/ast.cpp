@@ -56,10 +56,10 @@ struct enum_definition {
   std::vector<std::string> members;
 };
 
-struct leaf {};
+struct none {};
 
 using info = std::variant<function_definition, struct_definition,
-                          union_definition, leaf>;
+                          union_definition, none>;
 
 struct ast_node {
   info info;
@@ -82,7 +82,7 @@ validate_token(std::vector<lex::token> &source_tokens, int start, int end,
                std::span<const std::string> valid_values) {
   if (start >= end) {
     return std::unexpected(
-        error{error_code::UNEXPECTED_EOF, source_tokens[start - 1].line});
+        error{error_code::UNEXPECTED_EOF, source_tokens[end - 1].line});
   }
 
   bool ok = false;
@@ -320,10 +320,22 @@ std::expected<info, error> analyze(std::vector<lex::token> &source_tokens,
         open_brackets--;
         if (open_brackets == 0) {
           new_end = i;
+          break;
         }
       } else if (source_tokens[i] == lex::token{lex::type::SYMBOL, "{"}) {
         open_brackets++;
       }
+    }
+
+    if (open_brackets != 0) {
+      return std::unexpected(
+          error{error_code::UNEXPECTED_EOF, source_tokens[start - 1].line});
+      // so that it's the line of the unclosed brace that gets the error
+    }
+
+    if (start == end) {
+      return std::unexpected(
+          error{error_code::UNEXPECTED_TOKEN, source_tokens[end].line});
     }
 
     result = temp;
@@ -336,7 +348,7 @@ std::expected<void, error> generate_ast(ast_node *root,
                                         std::vector<lex::token> &source_tokens,
                                         int start, int end) {
   if (start >= end) {
-    root->info = leaf{};
+    root->info = none{};
     return {};
   }
 

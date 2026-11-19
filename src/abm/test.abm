@@ -131,6 +131,10 @@ fn main {
   if area < 500 && area > 0 {
     memory [area] = area
   }
+  # CUSTOM ISNTRUCTION TABLE MAKE EXAMPLE
+  # REMOVE +=
+  # ALSO RENAME LANGUAGE TO ALAKAZAM
+  # REMOVE MEMORY VARS AND VIRTUALS
 
   asm vshufps ^radius, ^radius, ^radius, 0b01010101
   # assembly code is treated like normal code, variable names are subbed in with ^name
